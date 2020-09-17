@@ -3,7 +3,16 @@
 </template>
 
 <script>
-export default {}
+export default {
+  computed: {
+    characters() {
+      return this.$store.state.characters;
+    },
+  },
+  created() {
+    this.$store.dispatch('getCharacters');
+  },
+};
 </script>
 
 <style></style>
