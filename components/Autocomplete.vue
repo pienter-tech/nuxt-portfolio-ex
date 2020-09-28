@@ -1,11 +1,15 @@
 <template>
-  <div class="c-autocomplete">
+  <div ref="c-autocomplete" class="c-autocomplete">
     <label class="c-autocomplete__label" for="comic-search">{{ name }}: </label>
+    <input aria-label="comic id" :name="name" type="hidden" :value="curValue" />
     <input
       id="comic-search"
       v-model="label"
+      :name="name + '-label'"
       class="c-autocomplete__input"
+      :disabled="isDisabled"
       type="text"
+      @blur="blur"
       @keyup="manualChange"
     />
     <div
@@ -33,9 +37,17 @@
 export default {
   name: 'Autocomplete',
   props: {
+    disabled: {
+      type: Boolean,
+      default: false,
+    },
     name: {
       type: String,
       required: true,
+    },
+    value: {
+      type: Number,
+      default: null,
     },
     options: {
       type: Array,
@@ -47,10 +59,13 @@ export default {
       type: Boolean,
       default: true,
     },
+    initLabel: {
+      type: String,
+      default: '',
+    },
   },
   data() {
     return {
-      value: null,
       label: '',
       timeout: null,
       labelChanged: false,
@@ -60,6 +75,12 @@ export default {
     optionList() {
       return this.options;
     },
+    curValue() {
+      return this.value;
+    },
+    isDisabled() {
+      return this.disabled;
+    },
   },
   watch: {
     loading(val) {
@@ -67,26 +88,41 @@ export default {
         this.labelChanged = false;
       }
     },
+    initLabel: {
+      immediate: true,
+      handler(label) {
+        if (label) {
+          this.label = label;
+        }
+      },
+    },
   },
   methods: {
     manualChange() {
       clearTimeout(this.timeout);
       this.labelChanged = true;
-      this.value = null;
+
+      this.$emit('select', null);
       this.timeout = setTimeout(this.emitChange, 1000);
+    },
+    blur(event) {
+      if (this.$refs['c-autocomplete'].contains(event.relatedTarget)) {
+        return;
+      }
+
+      this.$emit('select', null);
     },
     selectOption(label, value) {
       this.label = label;
-      this.value = value;
-      this.options = [];
-      this.$emit('select', this.value);
+      this.$emit('select', value);
     },
     emitChange() {
       if (this.label.length === 0) {
-        this.options = [];
         this.labelChanged = false;
+        this.$emit('select', null);
         return;
       }
+
       this.$emit('change', this.label);
     },
   },
@@ -101,6 +137,9 @@ export default {
 
   &__input {
     margin-bottom: 0;
+    &:disabled {
+      background-color: lighten($grey, 50%);
+    }
   }
 
   &__option {

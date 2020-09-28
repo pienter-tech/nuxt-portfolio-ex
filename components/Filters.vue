@@ -13,8 +13,11 @@
       </div>
       <Autocomplete
         name="Comics"
+        :value="parseInt(comicId)"
         :loading="fetchingComics"
         :options="comicOptions"
+        :init-label="initLabel"
+        :disabled="fetchingInitLabel"
         @change="searchComics"
         @select="updateComicId"
       />
@@ -41,9 +44,13 @@ export default {
         ? this.$route.query['character-name']
         : '',
       nameTimeout: null,
-      comicId: null,
+      comicId: this.$route.query['comic-id']
+        ? this.$route.query['comic-id']
+        : null,
       comicOptions: [],
       fetchingComics: false,
+      initLabel: '',
+      fetchingInitLabel: !!this.$route.query['comic-id'],
       show: true,
     };
   },
@@ -68,12 +75,41 @@ export default {
       this.nameTimeout = setTimeout(this.updateQuery, 1000);
     },
   },
+  async created() {
+    if (this.$route.query['comic-id']) {
+      const params = {
+        apikey: this.$store.state.apiKey,
+      };
+
+      try {
+        this.fetchingComics = true;
+        const response = await this.$axios({
+          method: 'GET',
+          url:
+            'https://gateway.marvel.com:443/v1/public/comics/' +
+            this.$route.query['comic-id'],
+          params,
+        });
+
+        if (!response.data.data.results[0]) {
+          throw new Error('Comic not found');
+        }
+
+        this.initLabel = response.data.data.results[0].title;
+      } catch (error) {
+        console.error(error);
+        this.comicId = null;
+        this.updateQuery();
+      }
+    }
+    this.fetchingInitLabel = false;
+  },
   methods: {
     toggleShow() {
       this.show = !this.show;
     },
     updateQuery() {
-      const newQuery = Object.assign({}, this.$route.query, this.filterObject);
+      const newQuery = this.filterObject;
 
       console.log(newQuery);
 
@@ -114,6 +150,7 @@ export default {
     },
     updateComicId(comicId) {
       this.comicId = comicId;
+      this.comicOptions = [];
       this.updateQuery();
     },
   },
