@@ -3,6 +3,7 @@ export const state = () => ({
   fetchingCharacters: false,
   characters: [],
   limit: 20,
+  apiKey: '73d1f9264e33cfeed75510d126300b53',
 });
 
 export const getters = {
@@ -29,13 +30,17 @@ export const mutations = {
 export const actions = {
   async fetchCharacters({ commit, state }, { page, filters }) {
     const params = {
-      apikey: '73d1f9264e33cfeed75510d126300b53',
+      apikey: state.apiKey,
       limit: 20,
       offset: 20 * (page - 1),
     };
 
     if (filters['character-name']) {
       params.nameStartsWith = filters['character-name'];
+    }
+
+    if (filters['comic-id']) {
+      params.comics = filters['comic-id'];
     }
 
     commit('START_FETCHING_CHARACTERS');

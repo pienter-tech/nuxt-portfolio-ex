@@ -53,40 +53,7 @@ export default {
   }
 
   &--loading {
-    &:before {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      content: '';
-      background-color: rgba(white, 0.9);
-    }
-
-    &:after {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      margin-top: -32px;
-      margin-left: -32px;
-      content: '';
-      display: block;
-      width: 64px;
-      height: 64px;
-      border-radius: 50%;
-      border: 6px solid #fff;
-      border-color: #000 transparent #000 transparent;
-      animation: lds-dual-ring 1.2s linear infinite;
-    }
-  }
-}
-
-@keyframes lds-dual-ring {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
+    @extend %loading;
   }
 }
 </style>

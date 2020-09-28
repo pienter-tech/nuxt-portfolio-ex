@@ -11,6 +11,13 @@
           <input v-model="characterName" type="text" />
         </label>
       </div>
+      <Autocomplete
+        name="Comics"
+        :loading="fetchingComics"
+        :options="comicOptions"
+        @change="searchComics"
+        @select="updateComicId"
+      />
     </div>
     <div class="c-filters__toggle">
       <button class="button button-clear" @click="toggleShow">
@@ -21,22 +28,38 @@
 </template>
 
 <script>
+import Autocomplete from '~/components/Autocomplete';
+
 export default {
   name: 'Filters',
+  components: {
+    Autocomplete,
+  },
   data() {
     return {
       characterName: this.$route.query['character-name']
         ? this.$route.query['character-name']
         : '',
       nameTimeout: null,
-      show: false,
+      comicId: null,
+      comicOptions: [],
+      fetchingComics: false,
+      show: true,
     };
   },
   computed: {
     filterObject() {
-      return {
-        'character-name': this.characterName,
-      };
+      const query = {};
+
+      if (this.characterName) {
+        query['character-name'] = this.characterName;
+      }
+
+      if (this.comicId) {
+        query['comic-id'] = this.comicId;
+      }
+
+      return query;
     },
   },
   watch: {
@@ -58,6 +81,40 @@ export default {
         path: '/characters/1',
         query: newQuery,
       });
+    },
+    async searchComics(comicTitle) {
+      if (comicTitle.length === 0) {
+        return;
+      }
+
+      const params = {
+        apikey: this.$store.state.apiKey,
+        limit: 10,
+        titleStartsWith: comicTitle,
+      };
+
+      try {
+        this.fetchingComics = true;
+        const response = await this.$axios({
+          method: 'GET',
+          url: 'https://gateway.marvel.com:443/v1/public/comics',
+          params,
+        });
+
+        this.comicOptions = response.data.data.results.map(function (comic) {
+          return {
+            value: comic.id,
+            label: comic.title,
+          };
+        });
+      } catch (error) {
+        console.error(error);
+      }
+      this.fetchingComics = false;
+    },
+    updateComicId(comicId) {
+      this.comicId = comicId;
+      this.updateQuery();
     },
   },
 };
