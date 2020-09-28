@@ -1,5 +1,5 @@
 <template>
-  <div class="c-pagination">
+  <div v-if="pagesCount > 0" class="c-pagination">
     <div class="c-pagination__back">
       <nuxt-link
         v-if="firstPage !== false"

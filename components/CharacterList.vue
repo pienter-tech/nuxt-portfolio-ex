@@ -12,6 +12,10 @@
     >
       {{ character.name }}
     </Character>
+
+    <div v-if="characters.length === 0" class="c-character-list__empty">
+      No characters found...
+    </div>
   </div>
 </template>
 
@@ -40,6 +44,13 @@ export default {
   grid-template-columns: 1fr 1fr;
   padding: 1rem;
   border: 1px solid $purple;
+
+  &__empty {
+    text-align: center;
+    font-size: 2rem;
+    align-self: center;
+    grid-column: span 2;
+  }
 
   &--loading {
     &:before {
