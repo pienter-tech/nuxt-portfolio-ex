@@ -26,6 +26,7 @@
         class="c-autocomplete__option"
         type="button"
         @click.prevent="selectOption(option.label, option.value)"
+        @keyup.enter="selectOption(option.label, option.value)"
       >
         {{ option.label }}
       </button>
