@@ -12,6 +12,9 @@
       @blur="blur"
       @keyup="manualChange"
     />
+    <div class="c-autocomplete__batch-container">
+      <button class="c-autocomplete__batch">Spiderman</button>
+    </div>
     <div
       :class="{
         'c-autocomplete__option-container': true,
@@ -140,6 +143,53 @@ export default {
     margin-bottom: 0;
     &:disabled {
       background-color: lighten($grey, 50%);
+    }
+  }
+
+  &__batch {
+    &-container {
+      padding-top: 1rem;
+      display: flex;
+      flex-wrap: wrap;
+    }
+
+    position: relative;
+    height: auto;
+    line-height: 1;
+    border-radius: 1.3rem;
+    padding: 0.7rem 2.5rem 0.7rem 1.3rem;
+    font-size: 1.2rem;
+
+    $crossWidth: 0.2rem;
+    $crossHeight: 1rem;
+    $crossColor: white;
+    $crossPosRight: 1.2rem;
+    $crossPosTop: 50%;
+
+    &:before {
+      content: '';
+      display: block;
+      position: absolute;
+      background-color: $crossColor;
+      width: $crossWidth;
+      height: $crossHeight;
+      right: $crossPosRight;
+      top: calc(#{$crossPosTop} - #{$crossHeight/2});
+      transform: rotate(45deg);
+      transform-origin: center center;
+    }
+
+    &:after {
+      content: '';
+      display: block;
+      position: absolute;
+      background-color: $crossColor;
+      width: $crossWidth;
+      height: $crossHeight;
+      right: $crossPosRight;
+      top: calc(#{$crossPosTop} - #{$crossHeight/2});
+      transform: rotate(-45deg);
+      transform-origin: center center;
     }
   }
 
