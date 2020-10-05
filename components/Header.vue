@@ -61,11 +61,6 @@ export default {
           subMenu: [],
         },
         {
-          label: 'contact',
-          path: '/contact/',
-          subMenu: [],
-        },
-        {
           label: 'marvel',
           path: '/marvel/',
           subMenu: [
@@ -82,6 +77,11 @@ export default {
               path: '/marvel/stories/1',
             },
           ],
+        },
+        {
+          label: 'contact',
+          path: '/contact/',
+          subMenu: [],
         },
       ],
     };
@@ -106,11 +106,11 @@ export default {
       return this.previousScrollY >= 100 || this.goingUp;
     },
   },
-  created() {
-    if (process.client) {
-      // eslint-disable-next-line nuxt/no-globals-in-created
-      window.addEventListener('scroll', this.checkScroll);
-    }
+  beforeMount() {
+    window.addEventListener('scroll', this.checkScroll);
+  },
+  beforeDestroy() {
+    window.removeEventListener('scroll', this.checkScroll);
   },
   methods: {
     checkScroll() {
@@ -136,8 +136,8 @@ export default {
   top: 0;
   left: 0;
   background-color: #fff;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
   z-index: 1;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
 
   &--fixed {
     position: fixed;

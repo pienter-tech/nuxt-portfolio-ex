@@ -3,4 +3,40 @@ $purple: #9b4dca;
 $accent: $purple;
 $red: #f0131e;
 
+$mq-xs: 320px;
+$mq-s: 770px;
+$mq-m: 1040px;
+$mq-l: 1460px;
+$mq-xl: 1900px;
+
 $header-height: 5rem;
+
+@mixin xs {
+  @media (max-width: #{$mq-xs}) {
+    @content;
+  }
+}
+
+@mixin s {
+  @media (max-width: #{$mq-s}) {
+    @content;
+  }
+}
+
+@mixin m {
+  @media (max-width: #{$mq-m}) {
+    @content;
+  }
+}
+
+@mixin l {
+  @media (max-width: #{$mq-l}) {
+    @content;
+  }
+}
+
+@mixin xl {
+  @media (max-width: #{$mq-xl}) {
+    @content;
+  }
+}
