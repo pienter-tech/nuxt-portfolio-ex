@@ -1,11 +1,11 @@
 '
 <template>
   <main class="p-characters-list">
-    <h1>Characters</h1>
+    <h1>Comics</h1>
     <Filters />
-    <Pagination />
+    <Pagination root-path="/marvel/comics/" />
     <CharacterList />
-    <Pagination />
+    <Pagination root-path="/marvel/comics/" />
   </main>
 </template>
 
@@ -15,7 +15,7 @@ import Pagination from '~/components/Pagination';
 import Filters from '~/components/Filters';
 
 export default {
-  name: 'CharactersPage',
+  name: 'ComicsPage',
   components: {
     CharacterList,
     Pagination,

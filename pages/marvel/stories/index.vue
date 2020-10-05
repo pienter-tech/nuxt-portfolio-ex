@@ -1,10 +1,12 @@
 <template>
-  <h1>Home</h1>
+  <h1>Comics</h1>
 </template>
 
 <script>
 export default {
-  name: 'Home',
+  created() {
+    this.$router.push('/comics/1');
+  },
 };
 </script>
 
