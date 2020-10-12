@@ -36,12 +36,17 @@ export default {
 <style lang="scss">
 .c-character {
   display: flex;
+  flex-wrap: wrap;
   &__thumbnail {
     width: 20rem;
     flex-shrink: 0;
   }
   &__info {
     padding-left: 2rem;
+    @include s() {
+      padding-left: 0;
+      width: 100%;
+    }
   }
 }
 </style>

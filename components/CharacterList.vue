@@ -45,6 +45,10 @@ export default {
   padding: 1rem;
   border: 1px solid $purple;
 
+  @include s() {
+    grid-template-columns: 1fr;
+  }
+
   &__empty {
     text-align: center;
     font-size: 2rem;

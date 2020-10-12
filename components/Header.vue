@@ -10,42 +10,51 @@
     <div class="c-header__logo">
       <img src="~/assets/images/marvel.jpg" alt="logo" />
     </div>
-    <nav class="c-header__nav">
-      <div
-        v-for="navItem in navItems"
-        :key="'nav_' + navItem.label"
-        :class="{
-          'c-header__nav-item': true,
-          'c-header__nav-item--active': $route.path === navItem.path,
-          'c-header__nav-item--has-submenu': navItem.subMenu.length,
-        }"
+    <div>
+      <button ref="hamburger" class="c-header__nav-hamburger">
+        <span></span><span></span><span></span>
+      </button>
+      <nav
+        :class="{ 'c-header__nav': true, 'c-header__nav--open': hamburgerOpen }"
       >
-        <nuxt-link :to="navItem.path">
-          {{ navItem.label }}
-        </nuxt-link>
-        <div v-if="navItem.subMenu.length" class="c-header__nav-sub">
-          <div
-            v-for="subNavItem in navItem.subMenu"
-            :key="'subnav_' + subNavItem.label"
-            :class="{
-              'c-header__nav-item': true,
-              'c-header__nav-item--active': $route.path === navItem.path,
-            }"
-          >
-            <nuxt-link :to="subNavItem.path">
-              {{ subNavItem.label }}
-            </nuxt-link>
+        <div
+          v-for="navItem in navItems"
+          :key="'nav_' + navItem.label"
+          :class="{
+            'c-header__nav-item': true,
+            'c-header__nav-item--active': $route.path === navItem.path,
+            'c-header__nav-item--has-submenu': navItem.subMenu.length,
+          }"
+        >
+          <nuxt-link :to="navItem.path">
+            {{ navItem.label }}
+          </nuxt-link>
+          <div v-if="navItem.subMenu.length" class="c-header__nav-sub">
+            <div
+              v-for="subNavItem in navItem.subMenu"
+              :key="'subnav_' + subNavItem.label"
+              :class="{
+                'c-header__nav-item': true,
+                'c-header__nav-item--active': $route.path === navItem.path,
+              }"
+            >
+              <nuxt-link :to="subNavItem.path">
+                {{ subNavItem.label }}
+              </nuxt-link>
+            </div>
           </div>
         </div>
-      </div>
-    </nav>
+      </nav>
+    </div>
   </header>
 </template>
+
 <script>
 export default {
   name: 'Header',
   data() {
     return {
+      hamburgerOpen: false,
       previousScrollY: 0,
       scrollDirectionChangePoss: 0,
       goingUp: false,
@@ -95,6 +104,10 @@ export default {
     },
 
     headerShown() {
+      if (this.hamburgerOpen) {
+        return true;
+      }
+
       if (this.goingUp) {
         return this.scrollDirectionChangePoss - this.previousScrollY > 75;
       }
@@ -108,11 +121,20 @@ export default {
   },
   beforeMount() {
     window.addEventListener('scroll', this.checkScroll);
+    document.addEventListener('click', this.toggleHamburger);
   },
   beforeDestroy() {
     window.removeEventListener('scroll', this.checkScroll);
+    document.removeEventListener('click', this.toggleHamburger);
   },
   methods: {
+    toggleHamburger(event) {
+      if (this.$refs.hamburger && this.$refs.hamburger.contains(event.target)) {
+        this.hamburgerOpen = !this.hamburgerOpen;
+      } else if (this.hamburgerOpen) {
+        this.hamburgerOpen = false;
+      }
+    },
     checkScroll() {
       const goingUp = this.previousScrollY > window.scrollY;
 
@@ -137,7 +159,7 @@ export default {
   left: 0;
   background-color: #fff;
   z-index: 1;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+  box-shadow: $box-shadow;
 
   &--fixed {
     position: fixed;
@@ -163,13 +185,87 @@ export default {
     position: relative;
     display: flex;
 
+    @include s() {
+      display: none;
+    }
+
+    &--open {
+      display: flex;
+      flex-direction: column;
+      position: absolute;
+      left: 0;
+      right: 0;
+      background-color: #fff;
+      box-shadow: $box-shadow;
+
+      .c-header__nav-item--has-submenu {
+        & > a {
+          padding-right: 2rem;
+        }
+        &:hover {
+          background-color: transparent;
+          & > a {
+            color: $red;
+
+            &:after {
+              border-top-color: $red;
+              transform: unset;
+            }
+          }
+        }
+      }
+      .c-header__nav-sub {
+        position: static;
+        transform: scaleY(1);
+        box-shadow: none;
+        background-color: rgba($red, 0.1);
+
+        a {
+          font-size: 1.4rem;
+        }
+      }
+    }
+
+    &-hamburger {
+      display: none;
+      height: $header-height;
+      width: $header-height;
+      background-color: transparent;
+      border-radius: 0;
+      border: none;
+      padding: 1.2rem;
+      margin: 0;
+      flex-direction: column;
+      justify-content: space-around;
+
+      @include s() {
+        display: flex;
+      }
+
+      &:hover,
+      &:focus {
+        background-color: $red;
+
+        span {
+          background-color: #fff;
+        }
+      }
+
+      span {
+        background-color: $red;
+        width: 100%;
+        height: 0.2rem;
+        border-radius: 0.1rem;
+      }
+    }
+
     &-sub {
       transform-origin: top;
       transform: scaleY(0);
       position: absolute;
       top: 100%;
       background-color: #fff;
-      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+      box-shadow: $box-shadow;
       transition: transform 100ms ease-in-out;
     }
 
