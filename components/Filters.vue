@@ -13,12 +13,13 @@
       </div>
       <Autocomplete
         name="Comics"
-        :value="parseInt(comicId)"
+        :value="comicIds"
         :loading="fetchingComics"
         :options="comicOptions"
         :init-label="initLabel"
         :disabled="fetchingInitLabel"
         @change="searchComics"
+        @remove="removeComicId"
         @select="updateComicId"
       />
     </div>
@@ -39,18 +40,25 @@ export default {
     Autocomplete,
   },
   data() {
+    let comicIds = [];
+    if (this.$route.query['comic-id']) {
+      comicIds = this.$route.query['comic-id'].map((val) => {
+        return {
+          value: val,
+          label: 'loading...',
+        };
+      });
+    }
+
     return {
       characterName: this.$route.query['character-name']
         ? this.$route.query['character-name']
         : '',
       nameTimeout: null,
-      comicId: this.$route.query['comic-id']
-        ? this.$route.query['comic-id']
-        : null,
+      comicIds,
       comicOptions: [],
       fetchingComics: false,
       initLabel: '',
-      fetchingInitLabel: !!this.$route.query['comic-id'],
       show: true,
     };
   },
@@ -62,8 +70,8 @@ export default {
         query['character-name'] = this.characterName;
       }
 
-      if (this.comicId) {
-        query['comic-id'] = this.comicId;
+      if (this.comicIds) {
+        query['comic-id'] = this.comicIds.map((val) => val.value);
       }
 
       return query;
@@ -75,8 +83,13 @@ export default {
       this.nameTimeout = setTimeout(this.updateQuery, 1000);
     },
   },
-  async created() {
-    if (this.$route.query['comic-id']) {
+  created() {
+    for (const comic of this.comicIds) {
+      this.fetchComicLabel(comic.value);
+    }
+  },
+  methods: {
+    async fetchComicLabel(comicId) {
       const params = {
         apikey: this.$store.state.apiKey,
       };
@@ -85,9 +98,7 @@ export default {
         this.fetchingComics = true;
         const response = await this.$axios({
           method: 'GET',
-          url:
-            'https://gateway.marvel.com:443/v1/public/comics/' +
-            this.$route.query['comic-id'],
+          url: 'https://gateway.marvel.com:443/v1/public/comics/' + comicId,
           params,
         });
 
@@ -95,26 +106,27 @@ export default {
           throw new Error('Comic not found');
         }
 
-        this.initLabel = response.data.data.results[0].title;
+        const label = response.data.data.results[0].title;
+        this.comicIds.map((comic) => {
+          if (comic.value === comicId) {
+            comic.label = label;
+          }
+        });
       } catch (error) {
         console.error(error);
         this.comicId = null;
         this.updateQuery();
       }
-    }
-    this.fetchingInitLabel = false;
-  },
-  methods: {
+    },
     toggleShow() {
       this.show = !this.show;
     },
     updateQuery() {
+      console.log(this.filterObject);
       const newQuery = this.filterObject;
 
-      console.log(newQuery);
-
       this.$router.push({
-        path: '/characters/1',
+        path: '/marvel/characters/1',
         query: newQuery,
       });
     },
@@ -148,9 +160,27 @@ export default {
       }
       this.fetchingComics = false;
     },
-    updateComicId(comicId) {
-      this.comicId = comicId;
+    updateComicId(comic) {
+      if (comic !== null) {
+        this.comicIds.push(comic);
+      }
       this.comicOptions = [];
+      this.updateQuery();
+    },
+    removeComicId(comicId) {
+      const index = this.comicIds.reduce((index, comic, curIndex) => {
+        if (comic.value === comicId) {
+          return curIndex;
+        }
+
+        return index;
+      }, -1);
+
+      if (index === -1) {
+        return;
+      }
+
+      this.comicIds.splice(index, 1);
       this.updateQuery();
     },
   },

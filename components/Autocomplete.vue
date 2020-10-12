@@ -1,7 +1,17 @@
 <template>
   <div ref="c-autocomplete" class="c-autocomplete">
     <label class="c-autocomplete__label" for="comic-search">{{ name }}: </label>
-    <input aria-label="comic id" :name="name" type="hidden" :value="curValue" />
+    <div class="c-autocomplete__batch-container">
+      <button
+        v-for="valueItem in curValue"
+        :key="valueItem.value"
+        class="c-autocomplete__batch"
+        :data-value="valueItem.value"
+        @click="removeItem(valueItem.value)"
+      >
+        {{ valueItem.label }}
+      </button>
+    </div>
     <input
       id="comic-search"
       v-model="label"
@@ -12,9 +22,6 @@
       @blur="blur"
       @keyup="manualChange"
     />
-    <div class="c-autocomplete__batch-container">
-      <button class="c-autocomplete__batch">Spiderman</button>
-    </div>
     <div
       :class="{
         'c-autocomplete__option-container': true,
@@ -26,7 +33,11 @@
       <button
         v-for="option in optionList"
         :key="'comic_option_' + option.value"
-        class="c-autocomplete__option"
+        :class="{
+          'c-autocomplete__option': true,
+          'c-autocomplete__option--disabled': optionIsSelected(option.value),
+        }"
+        :disabled="optionIsSelected(option.value)"
         type="button"
         @click.prevent="selectOption(option.label, option.value)"
         @keyup.enter="selectOption(option.label, option.value)"
@@ -50,8 +61,10 @@ export default {
       required: true,
     },
     value: {
-      type: Number,
-      default: null,
+      type: Array,
+      default() {
+        return [];
+      },
     },
     options: {
       type: Array,
@@ -102,6 +115,12 @@ export default {
     },
   },
   methods: {
+    optionIsSelected(value) {
+      return this.value.filter((valItem) => valItem.value === value).length > 0;
+    },
+    removeItem(value) {
+      this.$emit('remove', value);
+    },
     manualChange() {
       clearTimeout(this.timeout);
       this.labelChanged = true;
@@ -117,8 +136,8 @@ export default {
       this.$emit('select', null);
     },
     selectOption(label, value) {
-      this.label = label;
-      this.$emit('select', value);
+      this.label = '';
+      this.$emit('select', { value, label });
     },
     emitChange() {
       if (this.label.length === 0) {
@@ -148,9 +167,10 @@ export default {
 
   &__batch {
     &-container {
-      padding-top: 1rem;
+      padding-bottom: 1rem;
       display: flex;
       flex-wrap: wrap;
+      margin: -0.5rem;
     }
 
     position: relative;
@@ -159,6 +179,7 @@ export default {
     border-radius: 1.3rem;
     padding: 0.7rem 2.5rem 0.7rem 1.3rem;
     font-size: 1.2rem;
+    margin: 0.5rem;
 
     $crossWidth: 0.2rem;
     $crossHeight: 1rem;
@@ -194,6 +215,10 @@ export default {
   }
 
   &__option {
+    &--disabled {
+      background-color: $grey;
+      opacity: 1 !important;
+    }
     &-container {
       position: absolute;
       top: 100%;
