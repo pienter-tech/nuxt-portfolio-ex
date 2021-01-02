@@ -6,14 +6,14 @@
     }"
   >
     <Character
-      v-for="character in characters"
+      v-for="character in getCharacters"
       :key="character.id"
       :character="character"
     >
       {{ character.name }}
     </Character>
 
-    <div v-if="characters.length === 0" class="c-character-list__empty">
+    <div v-if="getCharacters.length === 0" class="c-character-list__empty">
       No characters found...
     </div>
   </div>
@@ -25,12 +25,20 @@ import Character from '~/components/Character';
 export default {
   name: 'CharacterList',
   components: { Character },
+  props: {
+    characters: {
+      type: Array,
+      default() {
+        return [];
+      },
+    },
+  },
   computed: {
     fetchingCharacters() {
       return this.$store.state.fetchingCharacters;
     },
-    characters() {
-      return this.$store.state.characters;
+    getCharacters() {
+      return this.characters;
     },
   },
 };

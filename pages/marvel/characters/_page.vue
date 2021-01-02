@@ -3,8 +3,11 @@
   <main class="p-characters-list">
     <h1>Characters</h1>
     <Filters />
+    <div>
+      <button @click="toggleSort">Sort</button>
+    </div>
     <Pagination root-path="/marvel/characters/" />
-    <CharacterList />
+    <CharacterList :characters="sortedCharacters" />
     <Pagination root-path="/marvel/characters/" />
   </main>
 </template>
@@ -21,12 +24,24 @@ export default {
     Pagination,
     Filters,
   },
+  data() {
+    return {
+      sortAsc: true,
+    };
+  },
   computed: {
     fetchingCharacters() {
       return this.$store.state.fetchingCharacters;
     },
     characters() {
       return this.$store.state.characters;
+    },
+    sortedCharacters() {
+      if (this.sortAsc) {
+        return this.characters;
+      }
+      const tempCharacters = JSON.parse(JSON.stringify(this.characters));
+      return tempCharacters.reverse();
     },
     currentPage() {
       return parseInt(this.$route.params.page);
@@ -36,6 +51,11 @@ export default {
         page: this.currentPage,
         filters: this.$route.query,
       };
+    },
+  },
+  methods: {
+    toggleSort() {
+      this.sortAsc = !this.sortAsc;
     },
   },
   watch: {
